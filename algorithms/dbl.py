@@ -10,19 +10,17 @@ def calculate_vertex_accessing_order(G):
     degrees = [(v, (G.in_degree(v) + 1) * (G.out_degree(v) + 1)) for v in G.nodes()]
     sorted_vertices = sorted(degrees, key=lambda x: x[1], reverse=True)
     vertex_order = [v for v, d in sorted_vertices]
-    
     return vertex_order
 
-def pll_bfs(G, vertex_order):
+def select_landmarks(vertex_order, k):
+    return vertex_order[:k]
+
+def dbl_bfs(G, landmarks, rank):
     L_out = defaultdict(dict)
     L_in = defaultdict(dict)
-    rank = {v: i for i, v in enumerate(vertex_order)}
-    #print("Rank dictionary:", rank)  # Debug statement
-
-    for v in vertex_order:
+    for v in landmarks:
         forward_bfs(G, v, rank, L_out, L_in)
-        backward_dfs(G, v, rank, L_out, L_in)
-        
+        backward_bfs(G, v, rank, L_out, L_in)
     return L_out, L_in
 
 def forward_bfs(G, source, rank, L_out, L_in):
@@ -42,13 +40,11 @@ def forward_bfs(G, source, rank, L_out, L_in):
             continue
 
         L_out[source][u] = d
-        #print(f"L_out[{source}][{u}] = {d}")  # Debug statement
-
         for neighbor in G.successors(u):
             if neighbor not in visited:
                 queue.append((neighbor, d + 1))
 
-def backward_dfs(G, source, rank, L_out, L_in):
+def backward_bfs(G, source, rank, L_out, L_in):
     visited = set()
     queue = deque([(source, 0)])
     while queue:
@@ -65,21 +61,16 @@ def backward_dfs(G, source, rank, L_out, L_in):
             continue
 
         L_in[source][u] = d
-        #print(f"L_in[{source}][{u}] = {d}")  # Debug statement
-
         for neighbor in G.predecessors(u):
             if neighbor not in visited:
                 queue.append((neighbor, d + 1))
 
-def is_reachable_pll(G, pruned_index_out, pruned_index_in, source, target):
+def is_reachable_dbl(G, L_out, L_in, source, target):
     # Check if the target is in the L_out of the source or the source is in the L_in of the target
-    if target in pruned_index_out[source] or source in pruned_index_in[target]:
+    if target in L_out[source] or source in L_in[target]:
         return True
     
-    common_vertices = set(pruned_index_out[source].keys()) & set(pruned_index_in[target].keys())
-    if common_vertices:
-        return True
-
+    # Perform BFS if necessary
     return bfs_check(G, source, target)
 
 def bfs_check(G, source, target):

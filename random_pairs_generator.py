@@ -1,7 +1,7 @@
 import numpy as np
 
 def random_pairs():
-    with open("graphs\out.zhishi-baidu-internallink", "r") as file:
+    with open("graphs\web-wikipedia2009.mtx", "r") as file:
         lines = file.readlines()
 
     column1 = []
@@ -14,11 +14,14 @@ def random_pairs():
     column1_array = np.array(column1)
     column2_array = np.array(column2)
 
-    random_indices_column1 = np.random.choice(len(column1_array), size=100, replace=False)
-    random_indices_column2 = np.random.choice(len(column2_array), size=100, replace=False)
+    random_indices_column1 = np.random.choice(len(column1_array), size=1000, replace=False)
+    random_indices_column2 = np.random.choice(len(column2_array), size=1000, replace=False)
 
     random_pairs = np.vstack((column1_array[random_indices_column1], column2_array[random_indices_column2])).T
 
-    with open("random_pairs_baidu-internallink.txt", "w") as file:
+    with open("pairs/random_pairs_wikipedia2009.txt", "w") as file:
         for pair in random_pairs:
             file.write(f"{pair[0]} {pair[1]}\n")
+
+
+random_pairs()

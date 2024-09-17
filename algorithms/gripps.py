@@ -3,6 +3,7 @@ import time
 import matplotlib.pyplot as plt
 import sys
 from collections import defaultdict
+from algorithms.dfs import dfs
 
 def assign_sit_codes(G):
     sit_codes = {}
@@ -28,7 +29,7 @@ def assign_sit_codes(G):
     return sit_codes
 
 
-def gripp(start_node, end_node, sit_codes):
+def gripp(start_node, end_node, sit_codes, scc_graph):
 
     start_sit = sit_codes[start_node]
     end_sit = sit_codes[end_node]
@@ -36,4 +37,4 @@ def gripp(start_node, end_node, sit_codes):
     if start_sit[0] < end_sit[0] and end_sit[1] < start_sit[1]:
         return True
     else:
-        return False
+        return dfs(scc_graph, start_node, end_node)
